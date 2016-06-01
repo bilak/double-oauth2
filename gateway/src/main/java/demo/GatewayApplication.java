@@ -12,11 +12,16 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.security.SecurityProperties;
+import org.springframework.boot.autoconfigure.security.oauth2.client.EnableOAuth2Sso;
 import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -40,7 +45,15 @@ import org.springframework.web.util.WebUtils;
 @EnableAutoConfiguration
 @Controller
 @EnableZuulProxy
+@EnableOAuth2Sso
 public class GatewayApplication {
+
+	@Bean
+	public String overwriteSerializationId(ApplicationContext appContext) {
+		BeanFactory beanFactory = appContext.getAutowireCapableBeanFactory();
+		((DefaultListableBeanFactory) beanFactory).setSerializationId("springOauth2GatewayAndSpringSession");
+		return "overwritten";
+	}
 
 	@RequestMapping("/user")
 	@ResponseBody
@@ -67,7 +80,7 @@ public class GatewayApplication {
 
 		@Autowired
 		public void globalUserDetails(AuthenticationManagerBuilder auth) throws Exception {
-			// @formatter:off	
+			// @formatter:off
 			auth.inMemoryAuthentication()
 				.withUser("user").password("password").roles("USER")
 			.and()
