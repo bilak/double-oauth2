@@ -13,6 +13,7 @@
 		<module>ui</module>
 		<module>resource</module>
 		<module>admin</module>
+		<module>authserver</module>
 	</modules>
 	
 </project>
