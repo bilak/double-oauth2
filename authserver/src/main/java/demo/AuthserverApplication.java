@@ -6,7 +6,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -17,8 +16,12 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.E
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer;
-import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
-import org.springframework.security.oauth2.provider.token.store.KeyStoreKeyFactory;
+import org.springframework.security.oauth2.provider.code.AuthorizationCodeServices;
+import org.springframework.security.oauth2.provider.code.InMemoryAuthorizationCodeServices;
+import org.springframework.security.oauth2.provider.token.AccessTokenConverter;
+import org.springframework.security.oauth2.provider.token.DefaultAccessTokenConverter;
+import org.springframework.security.oauth2.provider.token.TokenStore;
+import org.springframework.security.oauth2.provider.token.store.InMemoryTokenStore;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -26,7 +29,6 @@ import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
-import java.security.KeyPair;
 import java.security.Principal;
 
 @SpringBootApplication
@@ -85,13 +87,18 @@ public class AuthserverApplication extends WebMvcConfigurerAdapter {
         private AuthenticationManager authenticationManager;
 
         @Bean
-        public JwtAccessTokenConverter jwtAccessTokenConverter() {
-            JwtAccessTokenConverter converter = new JwtAccessTokenConverter();
-            KeyPair keyPair = new KeyStoreKeyFactory(
-                    new ClassPathResource("keystore.jks"), "foobar".toCharArray())
-                    .getKeyPair("test");
-            converter.setKeyPair(keyPair);
-            return converter;
+        protected AuthorizationCodeServices authorizationCodeServices() {
+            return new InMemoryAuthorizationCodeServices();
+        }
+
+        @Bean
+        AccessTokenConverter accessTokenConverter() {
+            return new DefaultAccessTokenConverter();
+        }
+
+        @Bean
+        TokenStore tokenStore() {
+            return new InMemoryTokenStore();
         }
 
         @Override
@@ -106,8 +113,11 @@ public class AuthserverApplication extends WebMvcConfigurerAdapter {
         @Override
         public void configure(AuthorizationServerEndpointsConfigurer endpoints)
                 throws Exception {
-            endpoints.authenticationManager(authenticationManager).accessTokenConverter(
-                    jwtAccessTokenConverter());
+            endpoints
+                    .authorizationCodeServices(authorizationCodeServices())
+                    .accessTokenConverter(accessTokenConverter())
+                    .authenticationManager(authenticationManager)
+                    .tokenStore(tokenStore());
         }
 
         @Override
