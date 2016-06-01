@@ -13,9 +13,7 @@ security:
         resource:
           token-info-uri:
     sessions: if_required
-    user:
-        password: password
-        role: USER,ADMIN
+
 server:
     contextPath: /uaa
     port: 9999
