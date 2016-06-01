@@ -16,8 +16,6 @@ zuul:
 
 security:
   sessions: ALWAYS
-  user:
-    password: password
   oauth2:
     client:
       accessTokenUri: http://localhost:9999/uaa/oauth/token
@@ -26,3 +24,5 @@ security:
       clientSecret: acmesecret
     resource:
       userInfoUri: http://localhost:9999/uaa/user
+  basic:
+    enabled: false

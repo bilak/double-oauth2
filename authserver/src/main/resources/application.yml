@@ -1,11 +1,23 @@
 logging:
-    level:
-        org:
-            springframework:
-                security: DEBUG
+  level:
+    org.springframework.security: DEBUG
+
+
 security:
+    oauth2:
+        client:
+            authorized-grant-types: authorization_code,refresh_token,password
+            clientId: acme
+            clientSecret: acmesecret
+            scope: openid
+        resource:
+          token-info-uri:
+    sessions: if_required
     user:
         password: password
+        role: USER,ADMIN
 server:
     contextPath: /uaa
     port: 9999
+
+

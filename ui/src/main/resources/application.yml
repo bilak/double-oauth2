@@ -3,3 +3,15 @@ server:
 logging:
   level:
     org.springframework.security: DEBUG
+
+security:
+  oauth2:
+    client:
+      client-id: acme
+      client-secret: acmesecret
+      accessTokenUri: http://localhost:9999/uaa/oauth/token
+      userAuthorizationUri: http://localhost:9999/uaa/oauth/authorize
+      grantType: authorization_code
+      scope: openid
+    resource:
+      userInfoUri: http://localhost:9999/uaa/user
