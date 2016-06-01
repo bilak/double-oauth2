@@ -1,0 +1,5 @@
+security:
+    sessions: NEVER
+server:
+    address: 127.0.0.1
+    port: 9000
