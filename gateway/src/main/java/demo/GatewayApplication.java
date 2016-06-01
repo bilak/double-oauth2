@@ -1,19 +1,13 @@
 package demo;
 
-import org.springframework.beans.factory.BeanFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.boot.autoconfigure.security.oauth2.client.EnableOAuth2Sso;
 import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.Authentication;
@@ -51,13 +45,6 @@ public class GatewayApplication {
         SpringApplication.run(GatewayApplication.class, args);
     }
 
-    @Bean
-    public String overwriteSerializationId(ApplicationContext appContext) {
-        BeanFactory beanFactory = appContext.getAutowireCapableBeanFactory();
-        ((DefaultListableBeanFactory) beanFactory).setSerializationId("springOauth2GatewayAndSpringSession");
-        return "overwritten";
-    }
-
     @RequestMapping("/user")
     @ResponseBody
     public Map<String, Object> user(Principal user) {
@@ -76,18 +63,6 @@ public class GatewayApplication {
     @Configuration
     @Order(SecurityProperties.ACCESS_OVERRIDE_ORDER)
     protected static class SecurityConfiguration extends WebSecurityConfigurerAdapter {
-
-        @Autowired
-        public void globalUserDetails(AuthenticationManagerBuilder auth) throws Exception {
-            // @formatter:off
-            auth.inMemoryAuthentication()
-                    .withUser("user").password("password").roles("USER")
-                    .and()
-                    .withUser("admin").password("admin").roles("USER", "ADMIN", "READER", "WRITER")
-                    .and()
-                    .withUser("audit").password("audit").roles("USER", "ADMIN", "READER");
-// @formatter:on
-        }
 
         @Override
         protected void configure(HttpSecurity http) throws Exception {
