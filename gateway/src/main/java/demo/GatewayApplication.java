@@ -1,17 +1,5 @@
 package demo;
 
-import java.io.IOException;
-import java.security.Principal;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
@@ -40,6 +28,17 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.util.WebUtils;
 
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.security.Principal;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 @Configuration
 @ComponentScan
 @EnableAutoConfiguration
@@ -48,94 +47,94 @@ import org.springframework.web.util.WebUtils;
 @EnableOAuth2Sso
 public class GatewayApplication {
 
-	@Bean
-	public String overwriteSerializationId(ApplicationContext appContext) {
-		BeanFactory beanFactory = appContext.getAutowireCapableBeanFactory();
-		((DefaultListableBeanFactory) beanFactory).setSerializationId("springOauth2GatewayAndSpringSession");
-		return "overwritten";
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(GatewayApplication.class, args);
+    }
 
-	@RequestMapping("/user")
-	@ResponseBody
-	public Map<String, Object> user(Principal user) {
-		Map<String, Object> map = new LinkedHashMap<String, Object>();
-		map.put("name", user.getName());
-		map.put("roles", AuthorityUtils.authorityListToSet(((Authentication) user)
-				.getAuthorities()));
-		return map;
-	}
+    @Bean
+    public String overwriteSerializationId(ApplicationContext appContext) {
+        BeanFactory beanFactory = appContext.getAutowireCapableBeanFactory();
+        ((DefaultListableBeanFactory) beanFactory).setSerializationId("springOauth2GatewayAndSpringSession");
+        return "overwritten";
+    }
 
-	@RequestMapping("/login")
-	public String login() {
-		return "forward:/";
-	}
+    @RequestMapping("/user")
+    @ResponseBody
+    public Map<String, Object> user(Principal user) {
+        Map<String, Object> map = new LinkedHashMap<String, Object>();
+        map.put("name", user.getName());
+        map.put("roles", AuthorityUtils.authorityListToSet(((Authentication) user)
+                .getAuthorities()));
+        return map;
+    }
 
-	public static void main(String[] args) {
-		SpringApplication.run(GatewayApplication.class, args);
-	}
+    @RequestMapping("/login")
+    public String login() {
+        return "forward:/";
+    }
 
-	@Configuration
-	@Order(SecurityProperties.ACCESS_OVERRIDE_ORDER)
-	protected static class SecurityConfiguration extends WebSecurityConfigurerAdapter {
+    @Configuration
+    @Order(SecurityProperties.ACCESS_OVERRIDE_ORDER)
+    protected static class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
-		@Autowired
-		public void globalUserDetails(AuthenticationManagerBuilder auth) throws Exception {
-			// @formatter:off
-			auth.inMemoryAuthentication()
-				.withUser("user").password("password").roles("USER")
-			.and()
-				.withUser("admin").password("admin").roles("USER", "ADMIN", "READER", "WRITER")
-			.and()
-				.withUser("audit").password("audit").roles("USER", "ADMIN", "READER");
+        @Autowired
+        public void globalUserDetails(AuthenticationManagerBuilder auth) throws Exception {
+            // @formatter:off
+            auth.inMemoryAuthentication()
+                    .withUser("user").password("password").roles("USER")
+                    .and()
+                    .withUser("admin").password("admin").roles("USER", "ADMIN", "READER", "WRITER")
+                    .and()
+                    .withUser("audit").password("audit").roles("USER", "ADMIN", "READER");
 // @formatter:on
-		}
+        }
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.httpBasic()
-			.and()
-				.logout()
-			.and()
-				.authorizeRequests()
-					.antMatchers("/index.html", "/login", "/").permitAll()
-					.anyRequest().authenticated()
-			.and()
-				.csrf().csrfTokenRepository(csrfTokenRepository())
-			.and()
-				.addFilterAfter(csrfHeaderFilter(), SessionManagementFilter.class);
-			// @formatter:on
-		}
+        @Override
+        protected void configure(HttpSecurity http) throws Exception {
+            // @formatter:off
+            http
+                    .httpBasic()
+                    .and()
+                    .logout()
+                    .and()
+                    .authorizeRequests()
+                    .antMatchers("/index.html", "/login", "/").permitAll()
+                    .anyRequest().authenticated()
+                    .and()
+                    .csrf().csrfTokenRepository(csrfTokenRepository())
+                    .and()
+                    .addFilterAfter(csrfHeaderFilter(), SessionManagementFilter.class);
+            // @formatter:on
+        }
 
-		private Filter csrfHeaderFilter() {
-			return new OncePerRequestFilter() {
-				@Override
-				protected void doFilterInternal(HttpServletRequest request,
-						HttpServletResponse response, FilterChain filterChain)
-						throws ServletException, IOException {
-					CsrfToken csrf = (CsrfToken) request.getAttribute(CsrfToken.class
-							.getName());
-					if (csrf != null) {
-						Cookie cookie = WebUtils.getCookie(request, "XSRF-TOKEN");
-						String token = csrf.getToken();
-						if (cookie == null || token != null
-								&& !token.equals(cookie.getValue())) {
-							cookie = new Cookie("XSRF-TOKEN", token);
-							cookie.setPath("/");
-							response.addCookie(cookie);
-						}
-					}
-					filterChain.doFilter(request, response);
-				}
-			};
-		}
+        private Filter csrfHeaderFilter() {
+            return new OncePerRequestFilter() {
+                @Override
+                protected void doFilterInternal(HttpServletRequest request,
+                                                HttpServletResponse response, FilterChain filterChain)
+                        throws ServletException, IOException {
+                    CsrfToken csrf = (CsrfToken) request.getAttribute(CsrfToken.class
+                            .getName());
+                    if (csrf != null) {
+                        Cookie cookie = WebUtils.getCookie(request, "XSRF-TOKEN");
+                        String token = csrf.getToken();
+                        if (cookie == null || token != null
+                                && !token.equals(cookie.getValue())) {
+                            cookie = new Cookie("XSRF-TOKEN", token);
+                            cookie.setPath("/");
+                            response.addCookie(cookie);
+                        }
+                    }
+                    filterChain.doFilter(request, response);
+                }
+            };
+        }
 
-		private CsrfTokenRepository csrfTokenRepository() {
-			HttpSessionCsrfTokenRepository repository = new HttpSessionCsrfTokenRepository();
-			repository.setHeaderName("X-XSRF-TOKEN");
-			return repository;
-		}
-	}
+        private CsrfTokenRepository csrfTokenRepository() {
+            HttpSessionCsrfTokenRepository repository = new HttpSessionCsrfTokenRepository();
+            repository.setHeaderName("X-XSRF-TOKEN");
+            return repository;
+        }
+    }
 
 }

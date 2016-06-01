@@ -1,9 +1,5 @@
 package demo;
 
-import java.security.Principal;
-import java.util.Collections;
-import java.util.Map;
-
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.security.SecurityProperties;
@@ -16,34 +12,38 @@ import org.springframework.session.data.redis.config.annotation.web.http.EnableR
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.security.Principal;
+import java.util.Collections;
+import java.util.Map;
+
 @SpringBootApplication
 @RestController
 @EnableRedisHttpSession
 @EnableResourceServer
 public class UiApplication {
 
-	@RequestMapping("/user")
-	public Map<String, String> user(Principal user) {
-		return Collections.singletonMap("name", user.getName());
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(UiApplication.class, args);
+    }
 
-	public static void main(String[] args) {
-		SpringApplication.run(UiApplication.class, args);
-	}
+    @RequestMapping("/user")
+    public Map<String, String> user(Principal user) {
+        return Collections.singletonMap("name", user.getName());
+    }
 
-	@Configuration
-	@Order(SecurityProperties.ACCESS_OVERRIDE_ORDER)
-	protected static class SecurityConfiguration extends WebSecurityConfigurerAdapter {
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.httpBasic().and()
-				.authorizeRequests()
-					.antMatchers("/index.html", "/").permitAll()
-					.anyRequest().hasRole("USER");
-			// @formatter:on
-		}
-	}
+    @Configuration
+    @Order(SecurityProperties.ACCESS_OVERRIDE_ORDER)
+    protected static class SecurityConfiguration extends WebSecurityConfigurerAdapter {
+        @Override
+        protected void configure(HttpSecurity http) throws Exception {
+            // @formatter:off
+            http
+                    .httpBasic().and()
+                    .authorizeRequests()
+                    .antMatchers("/index.html", "/").permitAll()
+                    .anyRequest().hasRole("USER");
+            // @formatter:on
+        }
+    }
 
 }
