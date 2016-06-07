@@ -1,5 +1,20 @@
-security:
-    sessions: NEVER
+logging:
+  level:
+    org.springframework.security: DEBUG
+
 server:
     address: 127.0.0.1
     port: 9000
+
+security:
+  sessions: NEVER
+  oauth2:
+    client:
+      client-id: acme
+      client-secret: acmesecret
+      accessTokenUri: http://localhost:9999/uaa/oauth/token
+      userAuthorizationUri: http://localhost:9999/uaa/oauth/authorize
+      grantType: authorization_code
+      scope: openid
+    resource:
+      userInfoUri: http://localhost:9999/uaa/user

@@ -4,14 +4,16 @@ logging:
 
 
 security:
-    oauth2:
-        client:
-            authorized-grant-types: authorization_code,refresh_token,password
-            clientId: acme
-            clientSecret: acmesecret
-            scope: openid
-        resource:
-          token-info-uri:
+    #oauth2:
+    #    client:
+    #        authorized-grant-types: authorization_code,refresh_token,password
+    #        clientId: acme
+    #        clientSecret: acmesecret
+    #        scope: openid
+    #        auto-approve-scopes: .*
+    #        registered-redirect-uri: http://localhost:8080/ui
+    #    resource:
+    #      token-info-uri:
     sessions: if_required
 
 server:

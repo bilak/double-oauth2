@@ -11,6 +11,7 @@ zuul:
       url: http://localhost:8082
       sensitive-headers:
     resource:
+      path: /resources/**
       url: http://localhost:9000
       sensitive-headers:
 
@@ -22,6 +23,9 @@ security:
       userAuthorizationUri: http://localhost:9999/uaa/oauth/authorize
       clientId: acme
       clientSecret: acmesecret
+      #registered-redirect-uri: http://localhost:8080
+      #use-current-uri: false
+      #pre-established-redirect-uri: http://localhost:8080
     resource:
       userInfoUri: http://localhost:9999/uaa/user
   basic:

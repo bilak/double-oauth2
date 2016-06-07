@@ -93,8 +93,7 @@ public class AuthserverApplication extends WebMvcConfigurerAdapter {
 
     @Configuration
     @EnableAuthorizationServer
-    protected static class OAuth2AuthorizationConfig extends
-            AuthorizationServerConfigurerAdapter {
+    protected static class OAuth2AuthorizationConfig extends AuthorizationServerConfigurerAdapter {
 
         @Autowired
         private AuthenticationManager authenticationManager;
@@ -119,8 +118,10 @@ public class AuthserverApplication extends WebMvcConfigurerAdapter {
             clients.inMemory()
                     .withClient("acme")
                     .secret("acmesecret")
-                    .authorizedGrantTypes("authorization_code", "refresh_token",
-                            "password").scopes("openid");
+                    .authorizedGrantTypes("authorization_code", "refresh_token", "password")
+                    //.autoApprove(".*") // uncomment this to disable approval page
+                    .scopes("openid");
+                    //.redirectUris("http://localhost:8080");
         }
 
         @Override
@@ -130,14 +131,15 @@ public class AuthserverApplication extends WebMvcConfigurerAdapter {
                     .authorizationCodeServices(authorizationCodeServices())
                     .accessTokenConverter(accessTokenConverter())
                     .authenticationManager(authenticationManager)
-                    .tokenStore(tokenStore());
+                    .tokenStore(tokenStore())
+                    .approvalStoreDisabled();
         }
 
         @Override
-        public void configure(AuthorizationServerSecurityConfigurer oauthServer)
-                throws Exception {
-            oauthServer.tokenKeyAccess("permitAll()").checkTokenAccess(
-                    "isAuthenticated()");
+        public void configure(AuthorizationServerSecurityConfigurer oauthServer) throws Exception {
+            oauthServer
+                    .tokenKeyAccess("permitAll()")
+                    .checkTokenAccess("isAuthenticated()");
         }
 
     }

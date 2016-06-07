@@ -5,6 +5,8 @@ logging:
     org.springframework.security: DEBUG
 
 security:
+  basic:
+    enabled: false
   oauth2:
     client:
       client-id: acme
@@ -13,5 +15,6 @@ security:
       userAuthorizationUri: http://localhost:9999/uaa/oauth/authorize
       grantType: authorization_code
       scope: openid
+      #registered-redirect-uri: http://localhost:8080/ui
     resource:
       userInfoUri: http://localhost:9999/uaa/user
